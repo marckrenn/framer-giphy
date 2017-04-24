@@ -58,12 +58,12 @@ giphy.trending {limit: stickerCount, stickers: true}, (stickers) ->
 
 | Available methods                    |
 | :---                                 |
-| [giphy.search()](#giphysearch)       |
-| [giphy.trending()](#giphytrending)   |
-| [giphy.translate()](#giphytranslate) |
-| [giphy.random()](#giphyrandom)       |
-| [giphy.gifById()](#giphygifById)     |
-| [giphy.gifsById()](#giphygifsById)   |
+| [giphy.search()](#-giphysearch)       |
+| [giphy.trending()](#-giphytrending)   |
+| [giphy.translate()](#-giphytranslate) |
+| [giphy.random()](#-giphyrandom)       |
+| [giphy.gifById()](#-giphygifbyid)     |
+| [giphy.gifsById()](#-giphygifsbyid)   |
 
 
 <br />
