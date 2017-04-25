@@ -122,7 +122,7 @@ exports.giphy = { # "Powered By Giphy"
 		else
 
 			if path is "gifsById"
-	
+
 				Utils.domLoadJSON query, (err, data) ->
 					if data.data.length isnt idCount
 						console.warn("One or more invalid IDs:", parameters.ids.split(","))
@@ -132,9 +132,18 @@ exports.giphy = { # "Powered By Giphy"
 							gifs.push(gif.images.original.url)
 						callback(gifs, data)
 
+			else if path is "random"
+	
+				Utils.domLoadJSON query, (err, data) ->
+					if data.data.length is 0
+						console.warn("No results for query:", parameters)
+					else
+						callback(data.data.image_original_url, data)
+
 			else
 
 				Utils.domLoadJSON query, (err, data) ->
+
 					if data.data.length is 0
 						console.warn("No results for query:", parameters)
 					else
@@ -195,6 +204,9 @@ exports.giphy = { # "Powered By Giphy"
 			parameters.tag = tag
 		else
 			parameters = tag
+		
+		if typeof parameters is "function"
+			callback = parameters
 
 		parameters ?= {}
 		parameters.limit = 1
