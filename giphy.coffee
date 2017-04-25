@@ -39,55 +39,109 @@ urlEncode = (url, keyValues) ->
 	return string
 
 
-# based on https://github.com/Giphy/GiphyAPI
+# The following is based on GIPHY API
+# https://github.com/Giphy/GiphyAPI
 
-apiKey = "dc6zaTOxFJmzC"
+# code should probably be restructured ... turned out that the GIPHY API is not as consistent as expected / hoped
 
 exports.giphy = { # "Powered By Giphy"
 
 	_queryGiphy: (path, parameters, callback) ->
 
-		unless parameters?
-			parameters = {}
+		parameters ?= {}
 
-		parameters.limit ?= 1
-		parameters.api_key = apiKey
+		unless path is "gifById" or path is "gifsById"
+			parameters.limit ?= 1
+	
+		parameters.api_key = "dc6zaTOxFJmzC"
+
 		if parameters.fmt? then delete parameters.fmt
+		if parameters.offset is 0 then delete parameters.offset
+
+		if path is "gifById"
+			id = parameters.id
+			delete parameters.id
+		else if path is "gifsById"
+			idCount = parameters.idCount
+			delete parameters.idCount
 
 		baseUrl = "https://api.giphy.com/v1"
 
-		if path is ""
+		if path is "gifById"
+			url = "#{baseUrl}/gifs/#{id}"
+		if path is "gifsById"
 			url = "#{baseUrl}/gifs"
 		else if parameters.stickers or parameters.sticker
 			url = "#{baseUrl}/stickers/#{path}"
 			if parameters.stickers? then delete parameters.stickers
 			if parameters.sticker? then delete parameters.sticker
-		else
-			url = "#{baseUrl}/gifs/#{path}"
+		else url = "#{baseUrl}/gifs/#{path}"
 
-		q = urlEncode(url, parameters)
+		query = urlEncode(url, parameters)
 
-		if parameters.limit is 1
 
-			if Array.isArray(Utils.domLoadJSONSync(q).data)
-				if Utils.domLoadJSONSync(q).pagination.total_count is 0
-					console.warn("No results for query: #{JSON.stringify(parameters)}.")
-				else
-					return Utils.domLoadJSONSync(q).data[0].images.original.url
+		unless callback?
+
+			if parameters.limit > 1 or path is "gifsById"
+
+				try
+					data = Utils.domLoadJSONSync(query).data
+					gifs = []
+					for gif in data
+						gifs.push(gif.images.original.url)
+					return gifs
+				catch
+					console.warn("No results for query:", parameters)
 
 			else
+
 				if path is "random"
-					return Utils.domLoadJSONSync(q).data.image_original_url
+					try
+						return Utils.domLoadJSONSync(query).data.image_original_url
+					catch
+						console.warn("No results for query:", parameters)
+
+				else if path is "translate"
+					try
+						return Utils.domLoadJSONSync(query).data.images.original.url
+					catch
+						console.warn("No results for query:", parameters)
+
+				else if path is "gifById"
+					try
+						return Utils.domLoadJSONSync(query).data.images.original.url
+					catch
+						console.warn("Invalid ID:", id)
+
 				else
-					return Utils.domLoadJSONSync(q).data.images.original.url
+					try
+						return Utils.domLoadJSONSync(query).data[0].images.original.url
+					catch
+						console.warn("No results for query:", parameters)
+
 		else
 
-			Utils.domLoadJSON q, (err, data) ->
-				if callback?
-					gifs = []
-					for gif in data.data
-						gifs.push(gif.images.original.url)
-					callback?(gifs, data)
+			if path is "gifsById"
+	
+				Utils.domLoadJSON query, (err, data) ->
+					if data.data.length isnt idCount
+						console.warn("One or more invalid IDs:", parameters.ids.split(","))
+					else
+						gifs = []
+						for gif in data.data
+							gifs.push(gif.images.original.url)
+						callback(gifs, data)
+
+			else
+
+				Utils.domLoadJSON query, (err, data) ->
+					if data.data.length is 0
+						console.warn("No results for query:", parameters)
+					else
+						gifs = []
+						for gif in data.data
+							gifs.push(gif.images.original.url)
+						callback(gifs, data)
 
 
 	search: (query = "", offset, parameters, callback) ->
@@ -95,8 +149,9 @@ exports.giphy = { # "Powered By Giphy"
 		if typeof offset is "object"
 			callback = parameters
 			parameters = offset
+			offset = 0
 
-		query = query.replace(/ /g, '+')
+		query = query.replace(/ /g, "+")
 
 		parameters ?= {}
 		parameters.q = query
@@ -121,7 +176,7 @@ exports.giphy = { # "Powered By Giphy"
 		if typeof query is "object"
 			callback = parameters
 
-		query = query.replace(/ /g, '+')
+		query = query.replace(/ /g, "+")
 
 		parameters ?= {}
 		parameters.s = query
@@ -133,9 +188,9 @@ exports.giphy = { # "Powered By Giphy"
 
 		if typeof tag is "string"
 			if parameters?.sticker
-				tag = tag.replace(/ /g, '-')
+				tag = tag.replace(/ /g, "-")
 			else
-				tag = tag.replace(/ /g, '+')
+				tag = tag.replace(/ /g, "+")
 			parameters ?= {}
 			parameters.tag = tag
 		else
@@ -146,18 +201,22 @@ exports.giphy = { # "Powered By Giphy"
 
 		@_queryGiphy("random", parameters, callback)
 
-	gifById: (id) -> @_queryGiphy(id)
+	gifById: (id) ->
+		parameters = {}
+		parameters.id = id
+		@_queryGiphy("gifById", parameters)
 
 	gifsById: (ids, callback) ->
 
 		unless parameters?
 			parameters = {}
 
-		parameters.limit = ids.length
-
-		ids = ids.join(", ").replace(/ /g,'')
+		parameters.idCount = ids.length
+		ids = ids.join(", ").replace(/ /g, "")
 		parameters.ids = ids
 
-		@_queryGiphy("", parameters, callback)
+
+		@_queryGiphy("gifsById", parameters, callback)
 
 }
+
