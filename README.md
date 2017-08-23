@@ -15,7 +15,7 @@ Provides easy access to gifs, jifs and stickers (= gifs with transparent backgro
 
 ## Getting started
 
-<a href='https://open.framermodules.com/Firebase'>
+<a href='https://open.framermodules.com/Giphy'>
     <img alt='Install with Framer Modules'
     src='https://www.framermodules.com/assets/badge@2x.png' width='160' height='40' /></a>
 
