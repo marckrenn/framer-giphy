@@ -1,0 +1,11 @@
+{
+    "name": "Giphy",
+    "description": "Provides easy access to gifs, jifs and stickers hosted on giphy.com.",
+    "author": "Marc Krenn",
+
+    "require": "{giphy} = require 'giphy'",
+    "install": "giphy.coffee",
+    "example": "example.coffee",
+
+    "thumb": "giphy.png"
+}

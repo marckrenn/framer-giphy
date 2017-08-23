@@ -15,6 +15,12 @@ Provides easy access to gifs, jifs and stickers (= gifs with transparent backgro
 
 ## Getting started
 
+<a href='https://open.framermodules.com/Firebase'>
+    <img alt='Install with Framer Modules'
+    src='https://www.framermodules.com/assets/badge@2x.png' width='160' height='40' /></a>
+
+<strong>OR</strong>
+
 | Step  | Instruction                                                                                           |
 | :---: | :---                                                                                                  |
 | **1** | Download the [giphy module](https://github.com/marckrenn/framer-giphy/archive/master.zip) and unzip the downloaded archive |
